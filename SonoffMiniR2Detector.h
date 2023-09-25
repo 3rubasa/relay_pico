@@ -8,4 +8,5 @@ public:
     bool Detect(uint8_t timeout);
 private:
     const std::string m_ipAddress;
+    bool m_lastState;
 };

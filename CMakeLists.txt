@@ -34,10 +34,18 @@ if (PICO_CYW43_SUPPORTED) # set by PICO_BOARD=pico_w
         message("Skipping Pico W examples as support is not available")
     else()
 
+    message("Running makefsdata python script")
+    
+    execute_process(COMMAND
+        py makefsdata.py
+        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+    )
+
     add_executable(${APP_NAME} 
         main.cpp
         SonoffMiniR2Detector.cpp
-        tcpclient.c)
+        tcpclient.c
+        ssi.cpp)
 
     target_link_libraries(${APP_NAME}
         pico_stdlib              # for core functionality

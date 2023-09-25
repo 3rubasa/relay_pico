@@ -10,7 +10,8 @@ const uint16_t port = 8081;
 const std::string request = "POST /zeroconf/info HTTP/1.1\r\nContent-Length: 25\r\nConnection: close\r\n\r\n{\"deviceid\":\"\",\"data\":{}}";
 
 SonoffMiniR2Detector::SonoffMiniR2Detector(const std::string& ipAddress) :
-    m_ipAddress(ipAddress)
+    m_ipAddress(ipAddress),
+    m_lastState(0)
 {}
 
 bool SonoffMiniR2Detector::Detect(uint8_t timeout) {

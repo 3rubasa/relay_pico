@@ -26,6 +26,11 @@
 
 #include "SonoffMiniR2Detector.h"
 
+#include "lwip/apps/httpd.h"
+#include "lwipopts.h"
+
+#include "ssi.h"
+
 #include "creds.h"
 
 #define DEBUG_printf printf
@@ -35,6 +40,8 @@
 #define SONOFF_MINIR2_CONNECT_TRIES 2
 
 #define RELAY_CONTROL_PIN 28
+
+bool g_lastState = false;
 
 int main() {
     stdio_init_all();
@@ -66,6 +73,14 @@ int main() {
     // Print a success message once connected
     printf("WIFI Connected! \n");
 
+    // Initialise web server
+    httpd_init();
+    printf("Http server initialised\n");
+
+    // Configure SSI and CGI handler
+    ssi_init(&g_lastState); 
+    printf("SSI Handler initialised\n");
+
     int tryNum = 0;
     while(true) {
         try {
@@ -75,11 +90,13 @@ int main() {
                 tryNum=0;
                 cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
                 gpio_put(RELAY_CONTROL_PIN, 1);
+                g_lastState = true;
             } else {
                 tryNum++;
                 if (tryNum == SONOFF_MINIR2_CONNECT_TRIES) {
                     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
                     gpio_put(RELAY_CONTROL_PIN, 0);
+                    g_lastState = false;
                     tryNum = 0;
                 }
             }
@@ -89,16 +106,9 @@ int main() {
                 
             cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
             gpio_put(RELAY_CONTROL_PIN, 0);
+            g_lastState = false;
         }
 
         sleep_ms(1000);
-
-        // sleep_ms(100);
-        // float input_signal = adc->readVoltage();
-        // printf("input_signal = %f\n", input_signal);
-        // // map Orion JR range [0;5] to dbu3200 range [1;4.7]
-        // float output_signal = 1 + input_signal * 0.74;
-        // printf("output_signal = %f\n", output_signal);
-        // adc->writeVoltage(output_signal);
     }
 }
